@@ -2,9 +2,10 @@
 from __future__ import annotations
 
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
-from telegram.ext import ContextTypes
+from telegram.ext import ContextTypes, ConversationHandler
 
 from app.config import CATEGORIES
+from app.handlers.states import CHOOSING_CATEGORY
 
 WELCOME_TEXT = (
     "👋 *Selamat datang di File Converter Bot!*\n\n"
@@ -22,7 +23,7 @@ def main_menu_keyboard() -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(buttons)
 
 
-async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     # Reset state percakapan sebelumnya (kalau ada) supaya alur selalu bersih.
     context.user_data.clear()
     await update.message.reply_text(
@@ -30,10 +31,12 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
         parse_mode="Markdown",
         reply_markup=main_menu_keyboard(),
     )
+    return CHOOSING_CATEGORY
 
 
-async def cancel_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+async def cancel_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     context.user_data.clear()
     await update.message.reply_text(
         "❌ Proses dibatalkan. Ketik /start untuk mulai lagi.",
     )
+    return ConversationHandler.END
